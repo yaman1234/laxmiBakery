@@ -19,7 +19,6 @@ from ..auth import (
 
 # Create router instance
 router = APIRouter(
-    prefix="/auth",
     tags=["Authentication"],
     responses={401: {"description": "Unauthorized"}}
 )
