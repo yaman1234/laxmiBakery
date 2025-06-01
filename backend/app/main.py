@@ -3,7 +3,7 @@ import os
 from typing import Dict
 
 # Third-party imports
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -44,11 +44,17 @@ if not os.path.exists(UPLOAD_DIR):
 # Mount static file directory for serving uploaded files
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-# Include routers
+# Create API router with /api prefix
+api_router = APIRouter(prefix="/api")
+
+# Include routers with their specific prefixes
 from .routes import auth, products, categories
-app.include_router(auth.router)
-app.include_router(products.router)
-app.include_router(categories.router)
+api_router.include_router(auth.router, prefix="/auth")
+api_router.include_router(products.router, prefix="/products")
+api_router.include_router(categories.router, prefix="/categories")
+
+# Include the API router in the main app
+app.include_router(api_router)
 
 # Health Check Endpoint
 @app.get("/health", tags=["System"])
@@ -73,10 +79,9 @@ async def startup_event():
 # Main entry point
 if __name__ == "__main__":
     import uvicorn
-    # Start development server with hot reload
     uvicorn.run(
-        "main:app",
+        "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=3001,
         reload=True  # Enable auto-reload on code changes
     ) 

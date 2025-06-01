@@ -12,7 +12,6 @@ from ..auth import get_current_admin
 
 # Create router instance
 router = APIRouter(
-    prefix="/categories",
     tags=["Categories"],
     responses={401: {"description": "Unauthorized"}}
 )
@@ -64,6 +63,8 @@ async def list_categories(request: Request) -> List[dict]:
     Returns:
         List[dict]: List of categories
     """
+    print("Fetching categories from database...")  # Debug log
+    
     # Get categories from database
     cursor = request.app.categories.find().sort("name", 1)
     category_list = await cursor.to_list(length=None)
@@ -72,6 +73,7 @@ async def list_categories(request: Request) -> List[dict]:
     for category in category_list:
         category["_id"] = str(category["_id"])
     
+    print(f"Found {len(category_list)} categories:", category_list)  # Debug log
     return category_list
 
 @router.get("/{category_id}", response_model=CategoryResponse)
