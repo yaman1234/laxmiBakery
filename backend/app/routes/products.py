@@ -78,37 +78,70 @@ async def list_products(
     request: Request,
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=50, description="Items per page"),
-    category: Optional[str] = None
+    category: Optional[str] = Query(None, description="Optional category name to filter products")
 ) -> dict:
     """
-    List all products with pagination and optional category filter.
-    """
-    print(f"Received request - page: {page}, limit: {limit}, category: {category}")  # Debug log
+    List all products with pagination and optional category filtering.
     
-    # Build query
-    query = {}
+    Args:
+        request: FastAPI request object
+        page: Page number (starts from 1)
+        limit: Number of items per page (between 1 and 50)
+        category: Optional category name to filter products
+        
+    Returns:
+        dict: Dictionary containing:
+            - items: List of products for the current page
+            - pagination: Pagination details including total items and pages
+            
+    Notes:
+        - Returns all available products when no category is specified
+        - When category is provided, filters products by that category (case-insensitive)
+        - Results are sorted alphabetically by product name
+    """
+    # Build base query
+    query = {"available": True}  # Only return available products by default
+    
+    # Add category filter if provided
     if category:
-        # Get category document to handle case-sensitive name
-        category_doc = await request.app.categories.find_one({"name": {"$regex": f"^{category}$", "$options": "i"}})
-        print(f"Found category document: {category_doc}")  # Debug log
+        # Get category document to handle case-insensitive name
+        category_doc = await request.app.categories.find_one(
+            {"name": {"$regex": f"^{category}$", "$options": "i"}}
+        )
         if category_doc:
             query["category"] = category_doc["name"]
+        else:
+            # Return empty result if category doesn't exist
+            return {
+                "items": [],
+                "pagination": {
+                    "page": page,
+                    "limit": limit,
+                    "total_items": 0,
+                    "total_pages": 0,
+                    "has_next": False,
+                    "has_prev": False
+                }
+            }
     
-    print(f"Using query: {query}")  # Debug log
-    
+    # Calculate skip for pagination
     skip = (page - 1) * limit
+    
+    # Get total count for pagination
     total_count = await request.app.products.count_documents(query)
+    
+    # Get products for current page
     cursor = request.app.products.find(query).sort("name", 1).skip(skip).limit(limit)
     product_list = await cursor.to_list(length=None)
     
-    print(f"Found {len(product_list)} products")  # Debug log
-    
-    # Convert ObjectId to string
+    # Convert ObjectId to string for each product
     for product in product_list:
         product["_id"] = str(product["_id"])
     
+    # Calculate pagination details
     total_pages = (total_count + limit - 1) // limit
-    result = {
+    
+    return {
         "items": product_list,
         "pagination": {
             "page": page,
@@ -119,8 +152,6 @@ async def list_products(
             "has_prev": page > 1
         }
     }
-    print(f"Returning response: {result}")  # Debug log
-    return result
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(request: Request, product_id: str) -> dict:
