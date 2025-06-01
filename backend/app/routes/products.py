@@ -15,7 +15,6 @@ from ..utils.file_handler import is_valid_image, save_upload_file, delete_file
 
 # Create router instance
 router = APIRouter(
-    prefix="/products",
     tags=["Products"],
     responses={401: {"description": "Unauthorized"}}
 )

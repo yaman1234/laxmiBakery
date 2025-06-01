@@ -50,7 +50,7 @@ api_router = APIRouter(prefix="/api")
 # Include routers with their specific prefixes
 from .routes import auth, products, categories
 api_router.include_router(auth.router, prefix="/auth")
-api_router.include_router(products.router, prefix="/products")
+api_router.include_router(products.router, prefix="/products")  # This will handle /api/products/*
 api_router.include_router(categories.router, prefix="/categories")
 
 # Include the API router in the main app
