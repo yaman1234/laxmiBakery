@@ -13,10 +13,14 @@ from ..database import products, categories
 from ..auth import get_current_admin
 from ..utils.file_handler import is_valid_image, save_upload_file, delete_file
 
-# Create router instance
+# Create router instance with tags for API documentation
 router = APIRouter(
     tags=["Products"],
-    responses={401: {"description": "Unauthorized"}}
+    responses={
+        401: {"description": "Unauthorized - Admin access required"},
+        404: {"description": "Product not found"},
+        422: {"description": "Validation error in request data"}
+    }
 )
 
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
@@ -31,9 +35,31 @@ async def create_product(
     image: UploadFile = File(...),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
-    """
-    Create a new product (Admin only).
-    Validates category, image, and saves the product.
+    """Create a new product with image upload.
+    
+    This endpoint handles product creation with image upload support.
+    Only authenticated administrators can create products.
+    
+    Args:
+        request: FastAPI request object
+        name: Product name
+        description: Product description
+        price: Product price in NRs.
+        category: Category name
+        tags: JSON string of product tags
+        discount: Discount percentage (0-100)
+        image: Product image file
+        current_admin: Current admin user (injected by dependency)
+    
+    Returns:
+        dict: Created product data
+        
+    Raises:
+        HTTPException: 
+            - 404: If category doesn't exist
+            - 400: If image format is invalid
+            - 500: If image upload fails
+            - 422: If tags JSON is invalid
     """
     # Validate category exists
     if not await request.app.categories.find_one({"name": category}):
@@ -55,7 +81,7 @@ async def create_product(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid tags format")
     
-    # Create product document
+    # Create product document with timestamps
     product = {
         "name": name,
         "description": description,
@@ -64,7 +90,9 @@ async def create_product(
         "images": [image_url],
         "available": True,
         "discount": discount,
-        "tags": tags_list
+        "tags": tags_list,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
     }
     
     # Insert into database
@@ -79,8 +107,7 @@ async def list_products(
     limit: int = Query(10, ge=1, le=50, description="Items per page"),
     category: Optional[str] = Query(None, description="Optional category name to filter products")
 ) -> dict:
-    """
-    List all products with pagination and optional category filtering.
+    """List all products with pagination and optional category filtering.
     
     Args:
         request: FastAPI request object
@@ -154,8 +181,19 @@ async def list_products(
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(request: Request, product_id: str) -> dict:
-    """
-    Get a single product by ID
+    """Get a single product by ID.
+    
+    Args:
+        request: FastAPI request object
+        product_id: The ID of the product to retrieve
+        
+    Returns:
+        dict: Product data if found
+        
+    Raises:
+        HTTPException:
+            - 404: If product not found
+            - 400: If product ID format is invalid
     """
     try:
         product = await request.app.products.find_one({"_id": ObjectId(product_id)})
@@ -189,8 +227,33 @@ async def update_product(
     image: Optional[UploadFile] = File(None),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
-    """
-    Update a product (Admin only)
+    """Update a product with optional image upload.
+    
+    Only authenticated administrators can update products.
+    Supports partial updates - only provided fields will be updated.
+    
+    Args:
+        request: FastAPI request object
+        product_id: ID of the product to update
+        name: Updated product name
+        description: Updated product description
+        price: Updated product price
+        category: Updated category name
+        available: Updated availability status
+        discount: Updated discount percentage
+        tags: Updated JSON string of tags
+        image: New product image file
+        current_admin: Current admin user (injected by dependency)
+        
+    Returns:
+        dict: Updated product data
+        
+    Raises:
+        HTTPException:
+            - 404: If product or category not found
+            - 400: If image format is invalid
+            - 500: If image upload fails
+            - 422: If tags JSON is invalid
     """
     # Check if product exists
     product = await request.app.products.find_one({"_id": ObjectId(product_id)})
@@ -243,6 +306,9 @@ async def update_product(
             detail="No fields to update"
         )
     
+    # Add updated timestamp
+    update_data["updated_at"] = datetime.utcnow()
+    
     # Update in database
     result = await request.app.products.update_one(
         {"_id": ObjectId(product_id)},
@@ -266,8 +332,19 @@ async def delete_product(
     product_id: str,
     current_admin: dict = Depends(get_current_admin)
 ) -> None:
-    """
-    Delete a product (Admin only)
+    """Delete a product and its associated images.
+    
+    Only authenticated administrators can delete products.
+    
+    Args:
+        request: FastAPI request object
+        product_id: ID of the product to delete
+        current_admin: Current admin user (injected by dependency)
+        
+    Raises:
+        HTTPException:
+            - 404: If product not found
+            - 401: If user is not authenticated as admin
     """
     # Get product to delete its images
     product = await request.app.products.find_one({"_id": ObjectId(product_id)})

@@ -29,7 +29,7 @@ app.categories = categories
 # Allow cross-origin requests for web client
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["http://localhost:3000"],  # Frontend development server
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
@@ -82,6 +82,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=3001,
+        port=8000,
         reload=True  # Enable auto-reload on code changes
     ) 
