@@ -10,6 +10,7 @@ from bson.errors import InvalidId
 # Local imports
 from ..models import ProductCreate, ProductUpdate, ProductResponse, ProductListResponse
 from ..database import products, categories
+from ..database import get_next_product_id
 from ..auth import get_current_admin
 from ..utils.file_handler import is_valid_image, save_upload_file, delete_file
 
@@ -32,6 +33,8 @@ async def create_product(
     category: str = Form(...),
     tags: str = Form("[]"),
     discount: float = Form(0),
+    theme: str = Form(...),
+    flavour: str = Form(...),
     image: UploadFile = File(...),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
@@ -81,8 +84,11 @@ async def create_product(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid tags format")
     
+    # Get next product_id
+    product_id = await get_next_product_id()
     # Create product document with timestamps
     product = {
+        "product_id": product_id,
         "name": name,
         "description": description,
         "price": price,
@@ -91,6 +97,8 @@ async def create_product(
         "available": True,
         "discount": discount,
         "tags": tags_list,
+        "theme": theme,
+        "flavour": flavour,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
@@ -224,6 +232,8 @@ async def update_product(
     available: Optional[bool] = Form(None),
     discount: Optional[float] = Form(None),
     tags: Optional[str] = Form(None),
+    theme: Optional[str] = Form(None),
+    flavour: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(None),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
@@ -289,6 +299,10 @@ async def update_product(
             update_data["tags"] = tags_list
         except json.JSONDecodeError:
             raise HTTPException(status_code=400, detail="Invalid tags format")
+    if theme is not None:
+        update_data["theme"] = theme
+    if flavour is not None:
+        update_data["flavour"] = flavour
     
     # Handle image update
     if image:

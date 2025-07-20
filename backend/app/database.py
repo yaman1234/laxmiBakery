@@ -76,3 +76,13 @@ def close_db() -> None:
         logger.info("Database connection closed")
     except Exception as e:
         logger.error(f"Error closing database connection: {str(e)}") 
+
+# Add a function to get the next product_id
+async def get_next_product_id():
+    counter = await db.counters.find_one_and_update(
+        {"_id": "product_id"},
+        {"$inc": {"seq": 1}},
+        upsert=True,
+        return_document=True
+    )
+    return counter["seq"] 

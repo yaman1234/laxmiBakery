@@ -35,9 +35,10 @@ backend/
 
 1. **Install Python dependencies:**
    ```bash
-   cd backend
-   python -m venv venv
-   venv\Scripts\activate  # On Windows
+   py --list
+  py -3.11 -m venv venv
+  .\venv\Scripts\activate
+# On Windows
    pip install -r requirements.txt
    ```
 

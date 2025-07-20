@@ -3,12 +3,13 @@ from typing import List
 from datetime import datetime
 
 # Third-party imports
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, File, UploadFile, Form
 from bson import ObjectId
 
 # Local imports
 from ..models import CategoryCreate, CategoryUpdate, CategoryResponse
 from ..auth import get_current_admin
+from ..utils.file_handler import is_valid_image, save_upload_file
 
 # Create router instance
 router = APIRouter(
@@ -19,7 +20,10 @@ router = APIRouter(
 @router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_category(
     request: Request,
-    category_data: CategoryCreate,
+    name: str = Form(...),
+    description: str = Form(...),
+    slug: str = Form(...),
+    image: UploadFile = File(None),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
     """
@@ -37,44 +41,49 @@ async def create_category(
         HTTPException: If category with same name exists
     """
     # Check if category name already exists
-    if await request.app.categories.find_one({"name": category_data.name}):
+    if await request.app.categories.find_one({"name": name}):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category with this name already exists"
         )
-    
+    images = []
+    if image:
+        if not is_valid_image(image):
+            raise HTTPException(status_code=400, detail="Invalid image format")
+        image_url = await save_upload_file(image)
+        if not image_url:
+            raise HTTPException(status_code=500, detail="Error saving image")
+        images.append(image_url)
     # Create category document
-    category = category_data.model_dump()
-    
+    category = {
+        "name": name,
+        "description": description,
+        "slug": slug,
+        "images": images
+    }
     # Insert into database
     result = await request.app.categories.insert_one(category)
     category["_id"] = str(result.inserted_id)
-    
     return category
 
-@router.get("", response_model=List[CategoryResponse])
-async def list_categories(request: Request) -> List[dict]:
+@router.get("", response_model=dict)
+async def list_categories(request: Request) -> dict:
     """
-    List all categories
-    
-    Args:
-        request: FastAPI request object
-    
-    Returns:
-        List[dict]: List of categories
+    List all categories with total count
     """
-    print("Fetching categories from database...")  # Debug log
-    
-    # Get categories from database
     cursor = request.app.categories.find().sort("name", 1)
     category_list = await cursor.to_list(length=None)
-    
-    # Convert ObjectId to string
+    # Convert ObjectId to string and validate with CategoryResponse
+    from ..models import CategoryResponse
+    items = []
     for category in category_list:
         category["_id"] = str(category["_id"])
-    
-    print(f"Found {len(category_list)} categories:", category_list)  # Debug log
-    return category_list
+        # Validate and serialize with Pydantic
+        try:
+            items.append(CategoryResponse(**category))
+        except Exception as e:
+            print(f"Skipping invalid category: {category.get('_id', '')}, error: {e}")
+    return {"items": [item.model_dump(by_alias=True) for item in items], "total": len(items)}
 
 @router.get("/{category_id}", response_model=CategoryResponse)
 async def get_category(request: Request, category_id: str) -> dict:
@@ -113,7 +122,10 @@ async def get_category(request: Request, category_id: str) -> dict:
 async def update_category(
     request: Request,
     category_id: str,
-    update_data: CategoryUpdate,
+    name: str = Form(None),
+    description: str = Form(None),
+    slug: str = Form(None),
+    image: UploadFile = File(None),
     current_admin: dict = Depends(get_current_admin)
 ) -> dict:
     """
@@ -138,19 +150,29 @@ async def update_category(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Category not found"
         )
-    
-    # Prepare update data
-    update_dict = update_data.model_dump(exclude_unset=True)
-    if not update_dict:
+    update_data = {}
+    if name is not None:
+        update_data["name"] = name
+    if description is not None:
+        update_data["description"] = description
+    if slug is not None:
+        update_data["slug"] = slug
+    if image:
+        if not is_valid_image(image):
+            raise HTTPException(status_code=400, detail="Invalid image format")
+        image_url = await save_upload_file(image)
+        if not image_url:
+            raise HTTPException(status_code=500, detail="Error saving image")
+        update_data["images"] = category.get("images", []) + [image_url]
+    if not update_data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No fields to update"
         )
-    
     # Check if new name conflicts with existing category
-    if "name" in update_dict:
+    if "name" in update_data:
         existing = await request.app.categories.find_one({
-            "name": update_dict["name"],
+            "name": update_data["name"],
             "_id": {"$ne": ObjectId(category_id)}
         })
         if existing:
@@ -158,20 +180,16 @@ async def update_category(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Category with this name already exists"
             )
-    
     # Update in database
     result = await request.app.categories.update_one(
         {"_id": ObjectId(category_id)},
-        {"$set": update_dict}
+        {"$set": update_data}
     )
-    
     if result.modified_count == 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category not updated"
         )
-    
-    # Get updated category
     updated_category = await request.app.categories.find_one({"_id": ObjectId(category_id)})
     updated_category["_id"] = str(updated_category["_id"])
     return updated_category

@@ -42,6 +42,7 @@ class ProductBase(BaseModel):
         tags (List[str]): List of tags associated with the product
         images (List[str]): List of image URLs for the product
     """
+    product_id: int
     name: str
     description: str
     price: float
@@ -50,6 +51,8 @@ class ProductBase(BaseModel):
     discount: float = Field(default=0, ge=0, le=100)  # Discount percentage between 0 and 100
     tags: List[str] = []
     images: List[str] = []  # Multiple images support
+    theme: str
+    flavour: str
 
 class ProductCreate(ProductBase):
     """Model for creating a new product.
@@ -75,6 +78,7 @@ class ProductUpdate(BaseModel):
         tags (Optional[List[str]]): Updated list of tags
         images (Optional[List[str]]): Updated list of image URLs
     """
+    product_id: Optional[int] = None
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
@@ -83,6 +87,8 @@ class ProductUpdate(BaseModel):
     discount: Optional[float] = Field(default=None, ge=0, le=100)
     tags: Optional[List[str]] = None
     images: Optional[List[str]] = None
+    theme: Optional[str] = None
+    flavour: Optional[str] = None
 
 class ProductInDB(ProductBase):
     """Model representing a product as stored in the database.
@@ -142,6 +148,7 @@ class CategoryBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=50)
     description: str = Field(..., min_length=10, max_length=500)
     slug: str  # Added slug field, removed image_url
+    images: List[str] = []
 
 class CategoryCreate(CategoryBase):
     """Model for creating a new category"""
@@ -152,6 +159,7 @@ class CategoryUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=50)
     description: Optional[str] = Field(None, min_length=10, max_length=500)
     slug: Optional[str] = None
+    images: Optional[List[str]] = None
 
 class CategoryResponse(CategoryBase):
     """Model for category response data"""
