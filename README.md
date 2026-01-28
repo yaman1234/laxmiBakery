@@ -33,25 +33,35 @@ backend/
 
 ## Backend Setup
 
-1. **Install Python dependencies:**
+1. **Navigate to backend directory:**
+
+   ```bash
+   cd backend
+   ```
+
+2. **Install Python dependencies:**
+
    ```bash
    py --list
-  py -3.11 -m venv venv
-  .\venv\Scripts\activate
-# On Windows
+   py -3.11 -m venv venv
+   .\venv\Scripts\activate
+   # On Windows
    pip install -r requirements.txt
    ```
 
-2. **Start MongoDB:**
+3. **Start MongoDB:**
    - Make sure MongoDB is running locally on the default port (27017).
 
-3. **Run the backend server:**
+4. **Run the backend server:**
+
    ```bash
+   # Make sure you're in the backend directory
    uvicorn app.main:app --reload --port 8000
    ```
+
    The API will be available at `http://localhost:8000`.
 
-4. **API Documentation:**
+5. **API Documentation:**
    - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
    - ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
@@ -79,6 +89,28 @@ backend/
 
 - The backend uses `mongodb://localhost:27017` by default. You can change this in `backend/app/database.py`.
 
+## Frontend Setup
+
+1. **Navigate to frontend directory:**
+
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+
+   ```bash
+   npm start
+   ```
+
+   The application will be available at `http://localhost:3000`.
+
 ## Contributing
 
 1. Fork the repository
@@ -94,11 +126,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 For any queries or support, please contact:
-- Email: info@laxmibakery.com
+
+- Email: <info@laxmibakery.com>
 - Phone: +91 98765 43210
 
 ## Acknowledgments
 
 - Material-UI for the beautiful components
 - React team for the amazing framework
-- All contributors who have helped with the project 
+- All contributors who have helped with the project
