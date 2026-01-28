@@ -1,0 +1,10 @@
+This directory contains placeholder images for the Laxmi Bakery website.
+
+Required images:
+1. hero-image.jpg - A high-quality image of assorted baked goods
+2. about-image.jpg - An image of the bakery interior or bakers at work
+3. product-1.jpg - Featured product image (e.g., cake)
+4. product-2.jpg - Featured product image (e.g., bread)
+5. product-3.jpg - Featured product image (e.g., pastries)
+
+Please replace these placeholder images with actual high-quality photographs of your products and bakery. 
