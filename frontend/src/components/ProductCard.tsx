@@ -92,6 +92,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                     {product.name}
                 </Typography>
 
+                {/* Description */}
+                <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                        mb: 1.5,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        minHeight: '40px',
+                        fontSize: '0.875rem',
+                    }}
+                >
+                    {product.description}
+                </Typography>
+
                 {/* Price Section */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mb: 1 }}>
                     {product.discount > 0 ? (
