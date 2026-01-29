@@ -6,23 +6,13 @@ import {
   Container,
   Grid,
   Typography,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
   Skeleton,
-  Rating,
-  Avatar,
   useTheme,
-  Paper,
-  Divider,
-  TextField,
-  IconButton,
   useMediaQuery,
   Alert,
   Snackbar,
 } from '@mui/material';
-import { ArrowForward as ArrowForwardIcon, WhatsApp as WhatsAppIcon } from '@mui/icons-material';
+import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { productService } from '../services/productService';
 import { Product } from '../types/product';
 import categoryService, { Category } from '../services/categoryService'; // Import category service and type
@@ -31,6 +21,8 @@ import { API_BASE_URL } from '../config'; // Import API base URL for image helpe
 import 'slick-carousel/slick/slick.css'; // Import slick-carousel base CSS
 import 'slick-carousel/slick/slick-theme.css'; // Import slick-carousel theme CSS
 import ShopByFlavor from '../components/ShopByFlavor'; // Import ShopByFlavor component
+import ShopByOccasion from '../components/ShopByOccasion'; // Import ShopByOccasion component
+import ProductCard from '../components/ProductCard'; // Import ProductCard component
 
 // SVG Wave Divider Component
 const WaveDivider = () => (
@@ -220,6 +212,9 @@ const Home = () => {
       {/* Shop by Flavor Section */}
       <ShopByFlavor />
 
+      {/* Shop by Occasion Section */}
+      <ShopByOccasion />
+
       {/* Featured Products */}
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
         <Box sx={{ textAlign: 'center', mb: 6 }}>
@@ -249,85 +244,21 @@ const Home = () => {
             // Loading skeletons
             [1, 2, 3, 4].map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item}>
-                <Card sx={{ height: '100%' }}>
-                  <Skeleton variant="rectangular" height={240} />
-                  <CardContent>
+                <Box sx={{ height: '100%' }}>
+                  <Skeleton variant="rectangular" height={280} />
+                  <Box sx={{ p: 2 }}>
                     <Skeleton variant="text" height={32} />
-                    <Skeleton variant="text" />
                     <Skeleton variant="text" width="60%" />
-                  </CardContent>
-                </Card>
+                    <Skeleton variant="rectangular" height={40} sx={{ mt: 2 }} />
+                  </Box>
+                </Box>
               </Grid>
             ))
           ) : (
             // Actual products
             featuredProducts.map((product) => (
               <Grid item xs={12} sm={6} md={3} key={product._id}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image={product.images[0] || '/images/placeholder.jpg'}
-                    alt={product.name}
-                    sx={{
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s ease-in-out',
-                      '&:hover': {
-                        transform: 'scale(1.05)',
-                      },
-                    }}
-                  />
-                  <CardContent sx={{ flexGrow: 1, textAlign: 'center', py: 2 }}>
-                    <Typography variant="h6" gutterBottom component="h3">
-                      {product.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 1,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {product.description}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      color="primary"
-                      sx={{ fontFamily: 'Lato, sans-serif' }}
-                    >
-                      ₹{product.price.toFixed(2)}
-                    </Typography>
-                  </CardContent>
-                  <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                    <Button
-                      onClick={handleOrderClick}
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      startIcon={<WhatsAppIcon />}
-                      sx={{
-                        bgcolor: '#25D366',
-                        '&:hover': {
-                          bgcolor: '#128C7E',
-                        },
-                      }}
-                    >
-                      Order Now
-                    </Button>
-                  </CardActions>
-                </Card>
+                <ProductCard product={product} onOrderClick={handleOrderClick} />
               </Grid>
             ))
           )}
@@ -382,12 +313,12 @@ const Home = () => {
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item}>
-                <Card sx={{ height: 280 }}>
+                <Box sx={{ height: 280 }}>
                   <Skeleton variant="rectangular" height={220} />
-                  <CardContent>
+                  <Box sx={{ p: 2 }}>
                     <Skeleton variant="text" height={32} />
-                  </CardContent>
-                </Card>
+                  </Box>
+                </Box>
               </Grid>
             ))}
           </Grid>

@@ -6,19 +6,21 @@ import {
   Container,
   Grid,
   Typography,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
   Skeleton,
   Chip,
   useTheme,
   useMediaQuery,
   Alert,
+  IconButton,
 } from '@mui/material';
-import { ArrowForward as ArrowForwardIcon, WhatsApp as WhatsAppIcon } from '@mui/icons-material';
+import {
+  ArrowForward as ArrowForwardIcon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+} from '@mui/icons-material';
 import { productService } from '../services/productService';
 import { Product } from '../types/product';
+import ProductCard from './ProductCard';
 
 const ShopByFlavor: React.FC = () => {
   const theme = useTheme();
@@ -27,6 +29,10 @@ const ShopByFlavor: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFlavor, setSelectedFlavor] = useState<string>('');
+  const [flavorStartIndex, setFlavorStartIndex] = useState(0);
+
+  // Number of flavors to show at once
+  const flavorsPerView = isMobile ? 3 : 5;
 
   // Fetch all products
   useEffect(() => {
@@ -75,8 +81,32 @@ const ShopByFlavor: React.FC = () => {
   const uniqueFlavors = getUniqueFlavors(products);
   const filteredProducts = getFilteredProducts();
 
+  // Get visible flavors for carousel
+  const visibleFlavors = uniqueFlavors.slice(
+    flavorStartIndex,
+    flavorStartIndex + flavorsPerView
+  );
+
   const handleFlavorClick = (flavor: string) => {
     setSelectedFlavor(flavor);
+  };
+
+  const handlePrevClick = () => {
+    const newIndex = Math.max(0, flavorStartIndex - 1);
+    setFlavorStartIndex(newIndex);
+    // Auto-select the first visible flavor
+    if (uniqueFlavors.length > 0) {
+      setSelectedFlavor(uniqueFlavors[newIndex]);
+    }
+  };
+
+  const handleNextClick = () => {
+    const newIndex = Math.min(uniqueFlavors.length - flavorsPerView, flavorStartIndex + 1);
+    setFlavorStartIndex(newIndex);
+    // Auto-select the first visible flavor
+    if (uniqueFlavors.length > 0) {
+      setSelectedFlavor(uniqueFlavors[newIndex]);
+    }
   };
 
   const handleOrderClick = () => {
@@ -98,14 +128,14 @@ const ShopByFlavor: React.FC = () => {
         <Grid container spacing={3}>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
             <Grid item xs={12} sm={6} md={3} key={item}>
-              <Card sx={{ height: '100%' }}>
-                <Skeleton variant="rectangular" height={200} />
-                <CardContent>
+              <Box sx={{ height: '100%' }}>
+                <Skeleton variant="rectangular" height={280} />
+                <Box sx={{ p: 2 }}>
                   <Skeleton variant="text" height={32} />
-                  <Skeleton variant="text" />
                   <Skeleton variant="text" width="60%" />
-                </CardContent>
-              </Card>
+                  <Skeleton variant="rectangular" height={40} sx={{ mt: 2 }} />
+                </Box>
+              </Box>
             </Grid>
           ))}
         </Grid>
@@ -159,42 +189,92 @@ const ShopByFlavor: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Flavor Tabs */}
+        {/* Flavor Carousel with Navigation */}
         <Box
           sx={{
             display: 'flex',
-            gap: 1.5,
+            alignItems: 'center',
+            gap: 2,
             mb: 5,
             justifyContent: 'center',
-            flexWrap: 'wrap',
-            overflowX: isMobile ? 'auto' : 'visible',
-            pb: isMobile ? 1 : 0,
           }}
         >
-          {uniqueFlavors.map((flavor) => (
-            <Chip
-              key={flavor}
-              label={flavor}
-              onClick={() => handleFlavorClick(flavor)}
-              color={selectedFlavor === flavor ? 'primary' : 'default'}
-              variant={selectedFlavor === flavor ? 'filled' : 'outlined'}
-              sx={{
-                fontSize: '1rem',
-                fontWeight: selectedFlavor === flavor ? 600 : 400,
-                py: 2.5,
-                px: 1,
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: 2,
-                },
-                ...(selectedFlavor === flavor && {
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                }),
-              }}
-            />
-          ))}
+          {/* Previous Button */}
+          <IconButton
+            onClick={handlePrevClick}
+            disabled={flavorStartIndex === 0}
+            sx={{
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              '&:hover': {
+                bgcolor: 'primary.light',
+                color: 'white',
+              },
+              '&.Mui-disabled': {
+                bgcolor: 'action.disabledBackground',
+              },
+            }}
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+
+          {/* Flavor Chips */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1.5,
+              flexWrap: 'nowrap',
+              overflow: 'hidden',
+              justifyContent: 'center',
+              flex: 1,
+              maxWidth: isMobile ? '70%' : '80%',
+            }}
+          >
+            {visibleFlavors.map((flavor) => (
+              <Chip
+                key={flavor}
+                label={flavor}
+                onClick={() => handleFlavorClick(flavor)}
+                color={selectedFlavor === flavor ? 'primary' : 'default'}
+                variant={selectedFlavor === flavor ? 'filled' : 'outlined'}
+                sx={{
+                  fontSize: '1rem',
+                  fontWeight: selectedFlavor === flavor ? 600 : 400,
+                  py: 2.5,
+                  px: 1,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: 2,
+                  },
+                  ...(selectedFlavor === flavor && {
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                  }),
+                }}
+              />
+            ))}
+          </Box>
+
+          {/* Next Button */}
+          <IconButton
+            onClick={handleNextClick}
+            disabled={flavorStartIndex >= uniqueFlavors.length - flavorsPerView}
+            sx={{
+              bgcolor: 'background.paper',
+              boxShadow: 2,
+              '&:hover': {
+                bgcolor: 'primary.light',
+                color: 'white',
+              },
+              '&.Mui-disabled': {
+                bgcolor: 'action.disabledBackground',
+              },
+            }}
+          >
+            <ChevronRightIcon />
+          </IconButton>
         </Box>
 
         {/* Product Grid */}
@@ -202,123 +282,7 @@ const ShopByFlavor: React.FC = () => {
           <Grid container spacing={3}>
             {filteredProducts.map((product) => (
               <Grid item xs={12} sm={6} md={3} key={product._id}>
-                <Card
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: 8,
-                    },
-                  }}
-                >
-                  {/* Discount Badge */}
-                  {product.discount > 0 && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        bgcolor: 'error.main',
-                        color: 'white',
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: 1,
-                        fontWeight: 600,
-                        fontSize: '0.875rem',
-                        zIndex: 1,
-                      }}
-                    >
-                      -{product.discount}%
-                    </Box>
-                  )}
-
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={product.images[0] || '/images/placeholder.jpg'}
-                    alt={product.name}
-                    sx={{
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s ease-in-out',
-                      '&:hover': {
-                        transform: 'scale(1.05)',
-                      },
-                    }}
-                  />
-
-                  <CardContent sx={{ flexGrow: 1, textAlign: 'center', py: 2 }}>
-                    <Typography variant="h6" gutterBottom component="h3">
-                      {product.name}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        mb: 1.5,
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        minHeight: '40px',
-                      }}
-                    >
-                      {product.description}
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-                      {product.discount > 0 ? (
-                        <>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              textDecoration: 'line-through',
-                              color: 'text.secondary',
-                            }}
-                          >
-                            ₹{product.price.toFixed(2)}
-                          </Typography>
-                          <Typography
-                            variant="h6"
-                            color="primary"
-                            sx={{ fontFamily: 'Lato, sans-serif', fontWeight: 700 }}
-                          >
-                            ₹{(product.price * (1 - product.discount / 100)).toFixed(2)}
-                          </Typography>
-                        </>
-                      ) : (
-                        <Typography
-                          variant="h6"
-                          color="primary"
-                          sx={{ fontFamily: 'Lato, sans-serif' }}
-                        >
-                          ₹{product.price.toFixed(2)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </CardContent>
-
-                  <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-                    <Button
-                      onClick={handleOrderClick}
-                      variant="contained"
-                      color="primary"
-                      size="medium"
-                      startIcon={<WhatsAppIcon />}
-                      sx={{
-                        bgcolor: '#25D366',
-                        '&:hover': {
-                          bgcolor: '#128C7E',
-                        },
-                      }}
-                    >
-                      Order Now
-                    </Button>
-                  </CardActions>
-                </Card>
+                <ProductCard product={product} onOrderClick={handleOrderClick} />
               </Grid>
             ))}
           </Grid>
