@@ -5,6 +5,7 @@ ENV/
 
 # Python Cache
 __pycache__/
+app/__pycache__/
 *.py[cod]
 *$py.class
 *.pyc

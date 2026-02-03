@@ -196,4 +196,32 @@ class PaginationMetadata(BaseModel):
     has_next: bool
     has_prev: bool
 
-# ... rest of the existing code ... 
+# Menu Models
+class MenuBase(BaseModel):
+    """Base model for menu items (cake types and prices)"""
+    cake_type: str = Field(..., min_length=2, max_length=100)
+    base_price: float = Field(..., ge=0)
+    description: Optional[str] = Field(None, max_length=500)
+    category: Optional[str] = Field("General", max_length=50)
+    is_active: bool = True
+    min_weight: float = Field(default=0.5, ge=0.5)
+
+class MenuCreate(MenuBase):
+    """Model for creating a new menu item"""
+    pass
+
+class MenuUpdate(BaseModel):
+    """Model for updating an existing menu item"""
+    cake_type: Optional[str] = Field(None, min_length=2, max_length=100)
+    base_price: Optional[float] = Field(None, ge=0)
+    description: Optional[str] = Field(None, max_length=500)
+    category: Optional[str] = Field(None, max_length=50)
+    is_active: Optional[bool] = None
+    min_weight: Optional[float] = Field(None, ge=0.5)
+
+class MenuResponse(MenuBase):
+    """Model for menu item response data"""
+    id: str = Field(alias="_id")
+
+    class Config:
+        populate_by_name = True

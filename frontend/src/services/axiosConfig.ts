@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       // Handle unauthorized access
       authService.logout(); // Clear invalid token
-      window.location.href = '/login'; // Redirect to login
+      window.location.href = '/admin/login'; // Redirect to login
     }
     return Promise.reject(error);
   }

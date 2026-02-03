@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 # Local imports
-from .database import init_db, db, users, products, categories
+from .database import init_db, db, users, products, categories, menu
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -24,6 +24,7 @@ app.mongodb = db
 app.users = users
 app.products = products
 app.categories = categories
+app.menu = menu
 
 # CORS Configuration
 # Allow cross-origin requests for web client
@@ -48,10 +49,18 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 api_router = APIRouter(prefix="/api")
 
 # Include routers with their specific prefixes
-from .routes import auth, products, categories
-api_router.include_router(auth.router, prefix="/auth")
-api_router.include_router(products.router, prefix="/products")  # This will handle /api/products/*
-api_router.include_router(categories.router, prefix="/categories")
+from .routes import (
+    auth as auth_route,
+    products as products_route,
+    categories as categories_route,
+    orders as orders_route,
+    menu as menu_route
+)
+api_router.include_router(auth_route.router, prefix="/auth")
+api_router.include_router(products_route.router, prefix="/products")  # This will handle /api/products/*
+api_router.include_router(categories_route.router, prefix="/categories")
+api_router.include_router(orders_route.router, prefix="/orders")
+api_router.include_router(menu_route.router, prefix="/menu")
 
 # Include the API router in the main app
 app.include_router(api_router)
@@ -67,7 +76,7 @@ async def health_check() -> Dict[str, str]:
     """
     return {
         "status": "healthy",
-        "version": "1.0.0"
+        "version": "1.0.1"
     }
 
 # Startup Event Handler

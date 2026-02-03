@@ -22,6 +22,7 @@ import {
   Category as CategoryIcon,
   Cake as ProductIcon,
   Person as UserIcon,
+  RestaurantMenu as MenuBookIcon,
   ExitToApp as LogoutIcon,
 } from '@mui/icons-material';
 import authService from '../services/authService';
@@ -47,6 +48,7 @@ const AdminLayout: React.FC = () => {
     { text: 'Products', icon: <ProductIcon />, path: '/admin/products' },
     { text: 'Categories', icon: <CategoryIcon />, path: '/admin/categories' },
     { text: 'Users', icon: <UserIcon />, path: '/admin/users' },
+    { text: 'Menu Management', icon: <MenuBookIcon />, path: '/admin/menu' },
   ];
 
   const drawer = (
@@ -75,9 +77,9 @@ const AdminLayout: React.FC = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       {/* App Bar */}
-      <AppBar 
-        position="fixed" 
-        sx={{ 
+      <AppBar
+        position="fixed"
+        sx={{
           zIndex: theme.zIndex.drawer + 1,
           backgroundColor: '#fff',
           color: '#000',

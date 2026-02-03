@@ -18,6 +18,7 @@ async def create_admin_user():
     # Admin user data
     admin_data = {
         "email": "admin@example.com",
+        "full_name": "Admin User",
         "password": pwd_context.hash("admin123"),
         "is_admin": True,
         "created_at": datetime.utcnow(),

@@ -37,6 +37,7 @@ function HideOnScroll(props: Props) {
 const pages = [
   { title: 'Home', path: '/' },
   { title: 'Products', path: '/products' },
+  { title: 'Place Order', path: '/order' },
   { title: 'Contact', path: '/contact' },
   { title: 'About Us', path: '/about' },
 ];
@@ -69,13 +70,13 @@ const Navbar = () => {
 
   return (
     <HideOnScroll>
-      <AppBar 
+      <AppBar
         position="fixed"
         elevation={isScrolled ? 4 : 0}
         sx={{
           bgcolor: isScrolled || !isHomePage ? 'primary.main' : 'transparent',
           transition: 'all 0.3s ease-in-out',
-          backgroundImage: isScrolled || !isHomePage 
+          backgroundImage: isScrolled || !isHomePage
             ? 'linear-gradient(45deg, #7c3a6a 30%, #9c5589 90%)'
             : 'none',
           borderRadius: 0,
@@ -147,8 +148,8 @@ const Navbar = () => {
                 }}
               >
                 {pages.map((page) => (
-                  <MenuItem 
-                    key={page.title} 
+                  <MenuItem
+                    key={page.title}
                     onClick={handleCloseNavMenu}
                     component={RouterLink}
                     to={page.path}

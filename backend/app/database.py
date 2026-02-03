@@ -35,6 +35,7 @@ db = client[DB_NAME]
 users = db.users           # User accounts and authentication
 products = db.products     # Bakery products
 categories = db.categories # Product categories
+menu = db.menu             # Menu items (cake types and prices)
 
 async def init_db() -> None:
     """
@@ -59,6 +60,10 @@ async def init_db() -> None:
         # Create unique index on category name
         logger.debug("Creating category name index")
         await categories.create_index("name", unique=True)
+        
+        # Create unique index on menu cake_type
+        logger.debug("Creating menu cake_type index")
+        await db.menu.create_index("cake_type", unique=True)
         
         logger.info("Database initialized successfully")
     except Exception as e:

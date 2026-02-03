@@ -9,8 +9,10 @@ import AdminLogin from './pages/AdminLogin';
 import AdminProducts from './pages/admin/Products';
 import Dashboard from './pages/admin/Dashboard';
 import AdminCategories from './pages/admin/Categories';
+import AdminMenu from './pages/admin/MenuManagement';
 import AdminUsers from './pages/admin/Users';
 import About from './pages/About';
+import PlaceOrder from './pages/PlaceOrder';
 import { useAuth } from './hooks/useAuth';
 
 // Protected Route component
@@ -37,6 +39,7 @@ const App: React.FC = () => {
         <Route path="products" element={<AdminProducts />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="menu" element={<AdminMenu />} />
         {/* Add more admin routes here */}
       </Route>
 
@@ -44,6 +47,7 @@ const App: React.FC = () => {
       <Route element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
+        <Route path="order" element={<PlaceOrder />} />
         <Route path="contact" element={<Contact />} />
         <Route path="about" element={<About />} />
       </Route>
