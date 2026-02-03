@@ -62,12 +62,16 @@ const ShopByFlavor: React.FC = () => {
     fetchProducts();
   }, []);
 
-  // Extract unique flavors from products
+  // Extract unique flavors from products and sort by product count
   const getUniqueFlavors = (productList: Product[]): string[] => {
-    const flavors = productList
-      .map(p => p.flavour)
-      .filter((flavor): flavor is string => !!flavor && flavor.trim() !== '');
-    return Array.from(new Set(flavors));
+    const counts: { [key: string]: number } = {};
+    productList.forEach(p => {
+      if (p.flavour && p.flavour.trim() !== '') {
+        counts[p.flavour] = (counts[p.flavour] || 0) + 1;
+      }
+    });
+
+    return Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
   };
 
   // Get products for the selected flavor (limit to 8)
@@ -92,20 +96,30 @@ const ShopByFlavor: React.FC = () => {
   };
 
   const handlePrevClick = () => {
-    const newIndex = Math.max(0, flavorStartIndex - 1);
-    setFlavorStartIndex(newIndex);
-    // Auto-select the first visible flavor
-    if (uniqueFlavors.length > 0) {
-      setSelectedFlavor(uniqueFlavors[newIndex]);
+    const currentIndex = uniqueFlavors.indexOf(selectedFlavor);
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      const newFlavor = uniqueFlavors[newIndex];
+      setSelectedFlavor(newFlavor);
+
+      // Adjust start index if the new flavor is out of view
+      if (newIndex < flavorStartIndex) {
+        setFlavorStartIndex(newIndex);
+      }
     }
   };
 
   const handleNextClick = () => {
-    const newIndex = Math.min(uniqueFlavors.length - flavorsPerView, flavorStartIndex + 1);
-    setFlavorStartIndex(newIndex);
-    // Auto-select the first visible flavor
-    if (uniqueFlavors.length > 0) {
-      setSelectedFlavor(uniqueFlavors[newIndex]);
+    const currentIndex = uniqueFlavors.indexOf(selectedFlavor);
+    if (currentIndex < uniqueFlavors.length - 1) {
+      const newIndex = currentIndex + 1;
+      const newFlavor = uniqueFlavors[newIndex];
+      setSelectedFlavor(newFlavor);
+
+      // Adjust start index if the new flavor is out of view
+      if (newIndex >= flavorStartIndex + flavorsPerView) {
+        setFlavorStartIndex(newIndex - flavorsPerView + 1);
+      }
     }
   };
 
@@ -202,7 +216,7 @@ const ShopByFlavor: React.FC = () => {
           {/* Previous Button */}
           <IconButton
             onClick={handlePrevClick}
-            disabled={flavorStartIndex === 0}
+            disabled={uniqueFlavors.indexOf(selectedFlavor) <= 0}
             sx={{
               bgcolor: 'background.paper',
               boxShadow: 2,
@@ -260,7 +274,7 @@ const ShopByFlavor: React.FC = () => {
           {/* Next Button */}
           <IconButton
             onClick={handleNextClick}
-            disabled={flavorStartIndex >= uniqueFlavors.length - flavorsPerView}
+            disabled={uniqueFlavors.indexOf(selectedFlavor) >= uniqueFlavors.length - 1}
             sx={{
               bgcolor: 'background.paper',
               boxShadow: 2,

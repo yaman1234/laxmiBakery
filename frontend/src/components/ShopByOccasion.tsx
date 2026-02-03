@@ -62,12 +62,20 @@ const ShopByOccasion: React.FC = () => {
         fetchProducts();
     }, []);
 
-    // Extract unique occasions from products' tags field
+    // Extract unique occasions from products' tags field and sort by product count
     const getUniqueOccasions = (productList: Product[]): string[] => {
-        const occasions = productList
-            .flatMap(p => p.tags || []) // Flatten all tags arrays
-            .filter((tag): tag is string => !!tag && tag.trim() !== '');
-        return Array.from(new Set(occasions));
+        const counts: { [key: string]: number } = {};
+        productList.forEach(p => {
+            if (p.tags) {
+                p.tags.forEach(tag => {
+                    if (tag && tag.trim() !== '') {
+                        counts[tag] = (counts[tag] || 0) + 1;
+                    }
+                });
+            }
+        });
+
+        return Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
     };
 
     // Get products for the selected occasion (limit to 8)
@@ -92,20 +100,30 @@ const ShopByOccasion: React.FC = () => {
     };
 
     const handlePrevClick = () => {
-        const newIndex = Math.max(0, occasionStartIndex - 1);
-        setOccasionStartIndex(newIndex);
-        // Auto-select the first visible occasion
-        if (uniqueOccasions.length > 0) {
-            setSelectedOccasion(uniqueOccasions[newIndex]);
+        const currentIndex = uniqueOccasions.indexOf(selectedOccasion);
+        if (currentIndex > 0) {
+            const newIndex = currentIndex - 1;
+            const newOccasion = uniqueOccasions[newIndex];
+            setSelectedOccasion(newOccasion);
+
+            // Adjust start index if the new occasion is out of view
+            if (newIndex < occasionStartIndex) {
+                setOccasionStartIndex(newIndex);
+            }
         }
     };
 
     const handleNextClick = () => {
-        const newIndex = Math.min(uniqueOccasions.length - occasionsPerView, occasionStartIndex + 1);
-        setOccasionStartIndex(newIndex);
-        // Auto-select the first visible occasion
-        if (uniqueOccasions.length > 0) {
-            setSelectedOccasion(uniqueOccasions[newIndex]);
+        const currentIndex = uniqueOccasions.indexOf(selectedOccasion);
+        if (currentIndex < uniqueOccasions.length - 1) {
+            const newIndex = currentIndex + 1;
+            const newOccasion = uniqueOccasions[newIndex];
+            setSelectedOccasion(newOccasion);
+
+            // Adjust start index if the new occasion is out of view
+            if (newIndex >= occasionStartIndex + occasionsPerView) {
+                setOccasionStartIndex(newIndex - occasionsPerView + 1);
+            }
         }
     };
 
@@ -202,7 +220,7 @@ const ShopByOccasion: React.FC = () => {
                     {/* Previous Button */}
                     <IconButton
                         onClick={handlePrevClick}
-                        disabled={occasionStartIndex === 0}
+                        disabled={uniqueOccasions.indexOf(selectedOccasion) <= 0}
                         sx={{
                             bgcolor: 'background.paper',
                             boxShadow: 2,
@@ -260,7 +278,7 @@ const ShopByOccasion: React.FC = () => {
                     {/* Next Button */}
                     <IconButton
                         onClick={handleNextClick}
-                        disabled={occasionStartIndex >= uniqueOccasions.length - occasionsPerView}
+                        disabled={uniqueOccasions.indexOf(selectedOccasion) >= uniqueOccasions.length - 1}
                         sx={{
                             bgcolor: 'background.paper',
                             boxShadow: 2,
