@@ -8,7 +8,8 @@ const MainLayout: React.FC = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
-      <Box component="main" sx={{ flexGrow: 1, py: 3 }}>
+      {/* Pages manage their own vertical spacing for full-bleed heroes */}
+      <Box component="main" sx={{ flexGrow: 1 }}>
         <Outlet />
       </Box>
       <Footer />

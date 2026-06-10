@@ -5,7 +5,6 @@ import {
   Button,
   Container,
   Grid,
-  Typography,
   Skeleton,
   Chip,
   useTheme,
@@ -21,6 +20,7 @@ import {
 import { productService } from '../services/productService';
 import { Product } from '../types/product';
 import ProductCard from './ProductCard';
+import SectionHeader from './home/SectionHeader';
 
 const ShopByFlavor: React.FC = () => {
   const theme = useTheme();
@@ -123,11 +123,6 @@ const ShopByFlavor: React.FC = () => {
     }
   };
 
-  const handleOrderClick = () => {
-    // Could show a snackbar or modal
-    alert('Please use WhatsApp to place your order. We\'ll respond promptly!');
-  };
-
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
@@ -170,38 +165,13 @@ const ShopByFlavor: React.FC = () => {
   }
 
   return (
-    <Box sx={{ bgcolor: '#f9f6f2', py: { xs: 4, md: 8 } }}>
+    <Box component="section" aria-label="Shop by flavor" sx={{ bgcolor: 'background.default', py: { xs: 6, md: 8 } }}>
       <Container maxWidth="lg">
-        {/* Section Header */}
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Typography
-            variant="h2"
-            gutterBottom
-            sx={{
-              position: 'relative',
-              display: 'inline-block',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                bottom: -16,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: 80,
-                height: 2,
-                bgcolor: 'secondary.main',
-              },
-            }}
-          >
-            Shop by Flavor
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ mt: 3, maxWidth: 600, mx: 'auto' }}
-          >
-            Explore our delicious creations organized by your favorite flavors
-          </Typography>
-        </Box>
+        <SectionHeader
+          title="Shop by Flavor"
+          subtitle="Explore our delicious creations organized by your favorite flavors."
+          accent="gold"
+        />
 
         {/* Flavor Carousel with Navigation */}
         <Box
@@ -217,6 +187,7 @@ const ShopByFlavor: React.FC = () => {
           <IconButton
             onClick={handlePrevClick}
             disabled={uniqueFlavors.indexOf(selectedFlavor) <= 0}
+            aria-label="Previous flavor"
             sx={{
               bgcolor: 'background.paper',
               boxShadow: 2,
@@ -275,6 +246,7 @@ const ShopByFlavor: React.FC = () => {
           <IconButton
             onClick={handleNextClick}
             disabled={uniqueFlavors.indexOf(selectedFlavor) >= uniqueFlavors.length - 1}
+            aria-label="Next flavor"
             sx={{
               bgcolor: 'background.paper',
               boxShadow: 2,
@@ -296,7 +268,7 @@ const ShopByFlavor: React.FC = () => {
           <Grid container spacing={3}>
             {filteredProducts.map((product) => (
               <Grid item xs={12} sm={6} md={3} key={product._id}>
-                <ProductCard product={product} onOrderClick={handleOrderClick} />
+                <ProductCard product={product} />
               </Grid>
             ))}
           </Grid>

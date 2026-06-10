@@ -28,11 +28,9 @@ export const productService = {
      */
     getProducts: async (page: number = 1, limit: number = 10): Promise<PaginatedProducts> => {
         try {
-            console.log('Fetching products with params:', { page, limit });
             const response = await axios.get<PaginatedProducts>('/api/products', {
                 params: { page, limit }
             });
-            console.log('Products response:', response.data);
             return {
                 ...response.data,
                 items: response.data.items.map(transformProduct)
@@ -130,18 +128,6 @@ export const productService = {
                 const blob = await response.blob();
                 formData.append('image', blob, 'product-image.jpg');
             }
-
-            // Log form data for debugging
-            console.log('Sending form data:', {
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                category: product.category,
-                discount: product.discount,
-                tags: product.tags,
-                available: product.available,
-                hasImage: !!product.images[0]
-            });
 
             const response = await axios.post<Product>('/api/products', formData, {
                 headers: {

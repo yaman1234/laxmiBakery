@@ -2,6 +2,8 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config/index';
 import authService from './authService';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 // Create axios instance with proper configuration
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -9,54 +11,32 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true // Enable sending cookies in cross-origin requests
+  withCredentials: true,
 });
 
-// Add request interceptor for debugging
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log('Request config:', {
-      url: config.url,
-      method: config.method,
-      baseURL: config.baseURL,
-      headers: config.headers
-    });
-    // Get token from auth service
     const token = authService.getToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor for debugging
 axiosInstance.interceptors.response.use(
-  (response) => {
-    console.log('Response:', {
-      status: response.status,
-      data: response.data,
-      headers: response.headers
-    });
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('Response error:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
+    if (isDev) {
+      console.error('API error:', error.response?.status, error.message);
+    }
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      authService.logout(); // Clear invalid token
-      window.location.href = '/admin/login'; // Redirect to login
+      authService.logout();
+      window.location.href = '/admin/login';
     }
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance; 
+export default axiosInstance;

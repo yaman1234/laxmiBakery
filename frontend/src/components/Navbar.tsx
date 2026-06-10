@@ -7,7 +7,6 @@ import {
   IconButton,
   Typography,
   Menu,
-  Container,
   Button,
   MenuItem,
   useScrollTrigger,
@@ -50,8 +49,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 50);
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -67,201 +65,183 @@ const Navbar = () => {
   };
 
   const isHomePage = location.pathname === '/';
+  const isSolidNav = isScrolled || !isHomePage;
+
+  const navLinkSx = {
+    my: 1,
+    mx: { md: 1.5 },
+    fontFamily: 'Lato, sans-serif',
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    letterSpacing: '0.04em',
+    textShadow: isSolidNav ? 'none' : '0 1px 6px rgba(0,0,0,0.65)',
+    position: 'relative' as const,
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      width: '0%',
+      height: '2px',
+      bottom: 4,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      backgroundColor: 'gold.main',
+      transition: 'width 0.3s ease',
+    },
+    '&:hover::after': { width: '80%' },
+    '&:hover': {
+      backgroundColor: 'transparent',
+      color: 'gold.light',
+    },
+  };
 
   return (
     <HideOnScroll>
       <AppBar
         position="fixed"
-        elevation={isScrolled ? 4 : 0}
+        elevation={isSolidNav ? 4 : 0}
         sx={{
-          bgcolor: isScrolled || !isHomePage ? 'primary.main' : 'transparent',
+          bgcolor: isSolidNav ? 'primary.main' : 'transparent',
           transition: 'all 0.3s ease-in-out',
-          backgroundImage: isScrolled || !isHomePage
+          backgroundImage: isSolidNav
             ? 'linear-gradient(45deg, #7c3a6a 30%, #9c5589 90%)'
-            : 'none',
+            : isHomePage
+              ? 'linear-gradient(to bottom, rgba(15, 5, 22, 0.88) 0%, rgba(15, 5, 22, 0.45) 55%, transparent 100%)'
+              : 'none',
           borderRadius: 0,
         }}
       >
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ py: 1 }}>
-            {/* Desktop Logo */}
-            <Typography
-              variant="h6"
-              noWrap
-              component={RouterLink}
-              to="/"
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'Playfair Display, serif',
-                fontWeight: 700,
-                fontSize: '1.8rem',
-                color: 'inherit',
-                textDecoration: 'none',
-                letterSpacing: '.05em',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  transition: 'transform 0.3s ease',
-                },
-              }}
-            >
-              Laxmi Bakery
-            </Typography>
+        {/* Full-width bar — logo flush to the left edge */}
+        <Toolbar
+          disableGutters
+          sx={{
+            width: '100%',
+            py: 1,
+            pl: { xs: 2, sm: 3 },
+            pr: { xs: 2, sm: 3 },
+            gap: 1,
+          }}
+        >
+          <Typography
+            variant="h6"
+            noWrap
+            component={RouterLink}
+            to="/"
+            sx={{
+              flexShrink: 0,
+              fontFamily: 'Playfair Display, serif',
+              fontWeight: 700,
+              fontSize: { xs: '1.35rem', md: '1.65rem' },
+              color: '#ffffff',
+              textDecoration: 'none',
+              letterSpacing: '.04em',
+              textShadow: isSolidNav ? 'none' : '0 2px 8px rgba(0,0,0,0.6)',
+              '&:hover': { color: 'gold.light' },
+            }}
+          >
+            Laxmi Bakery
+          </Typography>
 
-            {/* Mobile Menu */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
+          <Box sx={{ display: { xs: 'none', lg: 'flex' }, ml: 3 }}>
+            {pages.map((page) => (
+              <Button
+                key={page.title}
+                component={RouterLink}
+                to={page.path}
+                onClick={handleCloseNavMenu}
                 sx={{
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.1)',
+                  ...navLinkSx,
+                  color: location.pathname === page.path ? 'gold.main' : '#ffffff',
+                  '&::after': {
+                    ...navLinkSx['&::after'],
+                    width: location.pathname === page.path ? '80%' : '0%',
                   },
                 }}
               >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' },
-                  '& .MuiPaper-root': {
-                    borderRadius: 0,
-                    mt: 1,
-                    boxShadow: theme.shadows[4],
-                  },
-                }}
+                {page.title}
+              </Button>
+            ))}
+          </Box>
+
+          <Box sx={{ flexGrow: 1 }} />
+
+          <IconButton
+            size="large"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            aria-label="Open navigation menu"
+            onClick={handleOpenNavMenu}
+            color="inherit"
+            sx={{
+              display: { lg: 'none' },
+              color: '#ffffff',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorElNav}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            sx={{
+              display: { lg: 'none' },
+              '& .MuiPaper-root': {
+                borderRadius: 2,
+                mt: 1,
+                minWidth: 200,
+                boxShadow: theme.shadows[6],
+              },
+            }}
+          >
+            {pages.map((page) => (
+              <MenuItem
+                key={page.title}
+                onClick={handleCloseNavMenu}
+                component={RouterLink}
+                to={page.path}
+                selected={location.pathname === page.path}
               >
-                {pages.map((page) => (
-                  <MenuItem
-                    key={page.title}
-                    onClick={handleCloseNavMenu}
-                    component={RouterLink}
-                    to={page.path}
-                    selected={location.pathname === page.path}
-                    sx={{
-                      bgcolor: location.pathname === page.path ? 'rgba(255,215,64,0.15)' : undefined,
-                      '&:hover': {
-                        bgcolor: 'rgba(124,58,106,0.08)',
-                      },
-                    }}
-                  >
-                    <Typography textAlign="center" sx={{ fontFamily: 'Lato, sans-serif', color: location.pathname === page.path ? 'gold.main' : 'inherit' }}>
-                      {page.title}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-
-            {/* Mobile Logo */}
-            <Typography
-              variant="h6"
-              noWrap
-              component={RouterLink}
-              to="/"
-              sx={{
-                mr: 2,
-                display: { xs: 'flex', md: 'none' },
-                flexGrow: 1,
-                fontFamily: 'Playfair Display, serif',
-                fontWeight: 700,
-                color: 'inherit',
-                textDecoration: 'none',
-                fontSize: '1.5rem',
-                letterSpacing: '.05em',
-              }}
-            >
-              Laxmi Bakery
-            </Typography>
-
-            {/* Desktop Menu */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}>
-              {pages.map((page) => (
-                <Button
-                  key={page.title}
-                  component={RouterLink}
-                  to={page.path}
-                  onClick={handleCloseNavMenu}
+                <Typography
                   sx={{
-                    my: 2,
-                    mx: 2,
-                    color: location.pathname === page.path ? 'gold.main' : 'white',
-                    display: 'block',
-                    position: 'relative',
                     fontFamily: 'Lato, sans-serif',
-                    fontSize: '1rem',
-                    fontWeight: 500,
-                    letterSpacing: '0.05em',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      width: location.pathname === page.path ? '80%' : '0%',
-                      height: '2px',
-                      bottom: 0,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: 'gold.main',
-                      transition: 'width 0.3s ease',
-                    },
-                    '&:hover::after': {
-                      width: '80%',
-                    },
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                      transform: 'translateY(-2px)',
-                    },
+                    fontWeight: location.pathname === page.path ? 700 : 500,
+                    color: location.pathname === page.path ? 'primary.main' : 'text.primary',
                   }}
                 >
                   {page.title}
-                </Button>
-              ))}
-            </Box>
+                </Typography>
+              </MenuItem>
+            ))}
+          </Menu>
 
-            {/* Admin Login Button */}
-            <Box sx={{ flexGrow: 0 }}>
-              <Button
-                component={RouterLink}
-                to="/admin/login"
-                variant="outlined"
-                sx={{
-                  color: 'white',
-                  borderColor: 'rgba(255,255,255,0.5)',
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  },
-                  px: 3,
-                  py: 1,
-                  borderRadius: 0,
-                  textTransform: 'none',
-                  fontSize: '0.9rem',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Admin Login
-              </Button>
-            </Box>
-          </Toolbar>
-        </Container>
+          <Button
+            component={RouterLink}
+            to="/admin/login"
+            variant="outlined"
+            size="small"
+            sx={{
+              flexShrink: 0,
+              color: '#ffffff',
+              borderColor: 'rgba(255,255,255,0.55)',
+              textTransform: 'none',
+              fontSize: { xs: '0.8rem', md: '0.875rem' },
+              px: { xs: 1.5, md: 2.5 },
+              '&:hover': {
+                borderColor: '#ffffff',
+                bgcolor: 'rgba(255,255,255,0.12)',
+              },
+            }}
+          >
+            Admin
+          </Button>
+        </Toolbar>
       </AppBar>
     </HideOnScroll>
   );
 };
 
-export default Navbar; 
+export default Navbar;

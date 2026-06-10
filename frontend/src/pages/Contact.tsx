@@ -7,13 +7,11 @@ import {
   TextField,
   Button,
   Grid,
-  IconButton,
 } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { siteConfig } from '../config/siteConfig';
+import SocialLinks from '../components/SocialLinks';
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
@@ -35,9 +33,8 @@ const Contact: React.FC = () => {
       preferredDate: '',
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
-      // Handle form submission here
-      console.log('Form values:', values);
+    onSubmit: (_values) => {
+      // TODO: wire to backend contact endpoint
     },
   });
 
@@ -55,55 +52,22 @@ const Contact: React.FC = () => {
             <Box sx={{ mb: 2 }}>
               <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <span role="img" aria-label="location" style={{ marginRight: 8 }}>📍</span>
-                Thecho Dhapakhel-Dobato, Godawari-12, Lalitpur, Nepal
+                {siteConfig.address.full}
               </Typography>
               <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <span role="img" aria-label="phone" style={{ marginRight: 8 }}>📞</span>
-                01-5571246, 9860368155
+                {siteConfig.phoneDisplay}
               </Typography>
               <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <span role="img" aria-label="email" style={{ marginRight: 8 }}>✉️</span>
-                yamanmaharjan00@gmail.com
+                {siteConfig.email}
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
               <strong>Follow us on:</strong>
            
             </Typography>
-            <Box>
-              <IconButton
-                color="inherit"
-                aria-label="Facebook"
-                component="a"
-                href="https://facebook.com/yourpage"
-                target="_blank"
-                rel="noopener"
-                sx={{ mr: 1 }}
-              >
-                <FacebookIcon />
-              </IconButton>
-              <IconButton
-                color="inherit"
-                aria-label="Instagram"
-                component="a"
-                href="https://instagram.com/yourpage"
-                target="_blank"
-                rel="noopener"
-                sx={{ mr: 1 }}
-              >
-                <InstagramIcon />
-              </IconButton>
-              <IconButton
-                color="inherit"
-                aria-label="WhatsApp"
-                component="a"
-                href="https://wa.me/yourwhatsapplink"
-                target="_blank"
-                rel="noopener"
-              >
-                <WhatsAppIcon />
-              </IconButton>
-            </Box>
+            <SocialLinks />
           </Paper>
         </Grid>
         {/* Google Map (Right) */}

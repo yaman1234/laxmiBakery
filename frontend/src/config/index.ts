@@ -1,5 +1,5 @@
-// API Configuration
-export const API_BASE_URL = 'http://localhost:8000';
+// API Configuration — override with REACT_APP_API_URL in .env.local
+export const API_BASE_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:8000';
 
 // Authentication Configuration
 export const AUTH_TOKEN_KEY = 'auth_token';

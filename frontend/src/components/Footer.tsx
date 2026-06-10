@@ -6,11 +6,32 @@ import {
   Grid,
   Typography,
   Link,
-  IconButton,
 } from '@mui/material';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { siteConfig } from '../config/siteConfig';
+import SocialLinks from './SocialLinks';
+
+/** Gold accent styling for footer column headings on the plum background. */
+const footerTitleSx = {
+  color: 'gold.light',
+  fontWeight: 700,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase' as const,
+  fontSize: '0.95rem',
+  position: 'relative' as const,
+  display: 'inline-block',
+  pb: 1,
+  mb: 1,
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 40,
+    height: 2,
+    borderRadius: 1,
+    bgcolor: 'gold.main',
+  },
+};
 
 const Footer = () => {
   return (
@@ -25,10 +46,9 @@ const Footer = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4}>
-          {/* About Section */}
           <Grid item xs={12} sm={4}>
-            <Typography variant="h6" gutterBottom>
-              About Laxmi Bakery
+            <Typography variant="h6" component="h2" sx={footerTitleSx}>
+              About {siteConfig.businessName}
             </Typography>
             <Typography variant="body2">
               Serving delicious baked goods since 1990. We take pride in creating
@@ -36,9 +56,8 @@ const Footer = () => {
             </Typography>
           </Grid>
 
-          {/* Quick Links */}
           <Grid item xs={12} sm={4}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" component="h2" sx={footerTitleSx}>
               Quick Links
             </Typography>
             <Link
@@ -78,67 +97,34 @@ const Footer = () => {
             </Link>
           </Grid>
 
-          {/* Contact Information */}
           <Grid item xs={12} sm={4}>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" component="h2" sx={footerTitleSx}>
               Contact Us
             </Typography>
             <Typography variant="body2" paragraph>
-              Thecho, Dhapakhel-Dobato
+              {siteConfig.address.line1}
               <br />
-              Godawari-12, Lalitpur
+              {siteConfig.address.line2}
             </Typography>
             <Typography variant="body2" paragraph>
-              Phone: 01-5571246, 9860368155
+              Phone: {siteConfig.phoneDisplay}
               <br />
-              Email: yamanmaharjan00@gmail.com
+              Email: {siteConfig.email}
             </Typography>
-            <Box>
-              <IconButton
-                color="inherit"
-                aria-label="Facebook"
-                component="a"
-                href="https://facebook.com/yourpage"
-                target="_blank"
-                rel="noopener"
-              >
-                <FacebookIcon />
-              </IconButton>
-              <IconButton
-                color="inherit"
-                aria-label="Instagram"
-                component="a"
-                href="https://instagram.com/yourpage"
-                target="_blank"
-                rel="noopener"
-              >
-                <InstagramIcon />
-              </IconButton>
-              <IconButton
-                color="inherit"
-                aria-label="WhatsApp"
-                component="a"
-                href="https://wa.me/yourwhatsapplink"
-                target="_blank"
-                rel="noopener"
-              >
-                <WhatsAppIcon />
-              </IconButton>
-            </Box>
+            <SocialLinks />
           </Grid>
         </Grid>
 
-        {/* Copyright */}
         <Typography
           variant="body2"
           align="center"
           sx={{ mt: 4, opacity: 0.7 }}
         >
-          © {new Date().getFullYear()} Laxmi Bakery. All rights reserved.
+          © {new Date().getFullYear()} {siteConfig.businessName}. All rights reserved.
         </Typography>
       </Container>
     </Box>
   );
 };
 
-export default Footer; 
+export default Footer;

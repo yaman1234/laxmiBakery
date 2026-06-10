@@ -10,20 +10,15 @@ import {
 } from '@mui/material';
 import { WhatsApp as WhatsAppIcon } from '@mui/icons-material';
 import { Product } from '../types/product';
+import { formatCurrency, getEffectivePrice, getWhatsAppOrderUrl } from '../utils/whatsapp';
 
 interface ProductCardProps {
     product: Product;
-    onOrderClick?: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
-    const handleOrderClick = () => {
-        if (onOrderClick) {
-            onOrderClick();
-        } else {
-            alert("Please use WhatsApp to place your order. We'll respond promptly!");
-        }
-    };
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const effectivePrice = getEffectivePrice(product.price, product.discount);
+    const whatsappOrderUrl = getWhatsAppOrderUrl(product.name, effectivePrice);
 
     return (
         <Card
@@ -62,12 +57,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                 </Box>
             )}
 
-            {/* Image - Larger and more prominent */}
             <CardMedia
                 component="img"
                 height="280"
                 image={product.images[0] || '/images/placeholder.jpg'}
                 alt={product.name}
+                loading="lazy"
                 sx={{
                     objectFit: 'cover',
                     transition: 'transform 0.3s ease-in-out',
@@ -77,7 +72,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                 }}
             />
 
-            {/* Content - Compact and minimal */}
             <CardContent sx={{ flexGrow: 1, textAlign: 'center', py: 2, px: 2 }}>
                 <Typography
                     variant="h6"
@@ -92,7 +86,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                     {product.name}
                 </Typography>
 
-                {/* Description */}
                 <Typography
                     variant="body2"
                     color="text.secondary"
@@ -109,7 +102,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                     {product.description}
                 </Typography>
 
-                {/* Price Section */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mb: 1 }}>
                     {product.discount > 0 ? (
                         <>
@@ -121,7 +113,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                                     fontSize: '0.9rem',
                                 }}
                             >
-                                ₹{product.price.toFixed(2)}
+                                {formatCurrency(product.price)}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -132,7 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                                     fontSize: '1.25rem',
                                 }}
                             >
-                                ₹{(product.price * (1 - product.discount / 100)).toFixed(2)}
+                                {formatCurrency(effectivePrice)}
                             </Typography>
                         </>
                     ) : (
@@ -145,29 +137,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onOrderClick }) => {
                                 fontSize: '1.25rem',
                             }}
                         >
-                            ₹{product.price.toFixed(2)}
+                            {formatCurrency(product.price)}
                         </Typography>
                     )}
                 </Box>
             </CardContent>
 
-            {/* Order Button */}
             <CardActions sx={{ justifyContent: 'center', pb: 2, pt: 0 }}>
                 <Button
-                    onClick={handleOrderClick}
+                    component="a"
+                    href={whatsappOrderUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     variant="contained"
                     color="primary"
                     size="medium"
                     startIcon={<WhatsAppIcon />}
                     fullWidth
-                    sx={{
-                        mx: 2,
-                        bgcolor: '#25D366',
-                        '&:hover': {
-                            bgcolor: '#128C7E',
-                        },
-                        fontWeight: 600,
-                    }}
+                    sx={{ mx: 2 }}
                 >
                     Order Now
                 </Button>

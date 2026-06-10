@@ -5,7 +5,6 @@ import {
     Button,
     Container,
     Grid,
-    Typography,
     Skeleton,
     Chip,
     useTheme,
@@ -21,6 +20,7 @@ import {
 import { productService } from '../services/productService';
 import { Product } from '../types/product';
 import ProductCard from './ProductCard';
+import SectionHeader from './home/SectionHeader';
 
 const ShopByOccasion: React.FC = () => {
     const theme = useTheme();
@@ -127,11 +127,6 @@ const ShopByOccasion: React.FC = () => {
         }
     };
 
-    const handleOrderClick = () => {
-        // Could show a snackbar or modal
-        alert('Please use WhatsApp to place your order. We\'ll respond promptly!');
-    };
-
     if (loading) {
         return (
             <Container maxWidth="lg" sx={{ py: { xs: 4, md: 8 } }}>
@@ -174,38 +169,13 @@ const ShopByOccasion: React.FC = () => {
     }
 
     return (
-        <Box sx={{ bgcolor: 'background.default', py: { xs: 4, md: 8 } }}>
+        <Box component="section" aria-label="Shop by occasion" sx={{ bgcolor: 'background.paper', py: { xs: 6, md: 8 } }}>
             <Container maxWidth="lg">
-                {/* Section Header */}
-                <Box sx={{ textAlign: 'center', mb: 6 }}>
-                    <Typography
-                        variant="h2"
-                        gutterBottom
-                        sx={{
-                            position: 'relative',
-                            display: 'inline-block',
-                            '&::after': {
-                                content: '""',
-                                position: 'absolute',
-                                bottom: -16,
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                width: 80,
-                                height: 2,
-                                bgcolor: 'secondary.main',
-                            },
-                        }}
-                    >
-                        Shop by Occasion
-                    </Typography>
-                    <Typography
-                        variant="body1"
-                        color="text.secondary"
-                        sx={{ mt: 3, maxWidth: 600, mx: 'auto' }}
-                    >
-                        Find the perfect treats for every special moment and celebration
-                    </Typography>
-                </Box>
+                <SectionHeader
+                    title="Shop by Occasion"
+                    subtitle="Find the perfect treats for every special moment and celebration."
+                    accent="secondary"
+                />
 
                 {/* Occasion Carousel with Navigation */}
                 <Box
@@ -221,6 +191,7 @@ const ShopByOccasion: React.FC = () => {
                     <IconButton
                         onClick={handlePrevClick}
                         disabled={uniqueOccasions.indexOf(selectedOccasion) <= 0}
+                        aria-label="Previous occasion"
                         sx={{
                             bgcolor: 'background.paper',
                             boxShadow: 2,
@@ -279,6 +250,7 @@ const ShopByOccasion: React.FC = () => {
                     <IconButton
                         onClick={handleNextClick}
                         disabled={uniqueOccasions.indexOf(selectedOccasion) >= uniqueOccasions.length - 1}
+                        aria-label="Next occasion"
                         sx={{
                             bgcolor: 'background.paper',
                             boxShadow: 2,
@@ -300,7 +272,7 @@ const ShopByOccasion: React.FC = () => {
                     <Grid container spacing={3}>
                         {filteredProducts.map((product) => (
                             <Grid item xs={12} sm={6} md={3} key={product._id}>
-                                <ProductCard product={product} onOrderClick={handleOrderClick} />
+                                <ProductCard product={product} />
                             </Grid>
                         ))}
                     </Grid>

@@ -74,13 +74,10 @@ const MenuManagement: React.FC = () => {
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
-            console.log('Submitting menu item:', values);
             try {
                 if (editingItem) {
-                    console.log('Updating existing item:', editingItem._id);
                     await menuService.updateMenuItem(editingItem._id, values);
                 } else {
-                    console.log('Creating new menu item');
                     await menuService.createMenuItem(values as MenuCreate);
                 }
                 handleClose();

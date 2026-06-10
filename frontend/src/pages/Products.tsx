@@ -7,8 +7,6 @@ import {
   TextField,
   MenuItem,
   Skeleton,
-  Alert,
-  Snackbar,
   useTheme,
   CircularProgress,
 } from '@mui/material';
@@ -36,8 +34,6 @@ const Products: React.FC = () => {
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [openAlert, setOpenAlert] = useState(false);
-
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
@@ -142,17 +138,6 @@ const Products: React.FC = () => {
     setSelectedCategory(category);
   };
 
-  const handleOrderClick = () => {
-    setOpenAlert(true);
-  };
-
-  const handleCloseAlert = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenAlert(false);
-  };
-
   return (
     <Box sx={{ bgcolor: 'background.default', pt: { xs: '80px', md: '100px' } }}>
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -224,7 +209,7 @@ const Products: React.FC = () => {
             <>
               {filteredProducts.map((product) => (
                 <Grid item xs={12} sm={6} md={3} key={product._id}>
-                  <ProductCard product={product} onOrderClick={handleOrderClick} />
+                  <ProductCard product={product} />
                 </Grid>
               ))}
 
@@ -267,28 +252,6 @@ const Products: React.FC = () => {
           </Box>
         )}
 
-        {/* WhatsApp Alert */}
-        <Snackbar
-          open={openAlert}
-          autoHideDuration={6000}
-          onClose={handleCloseAlert}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert
-            onClose={handleCloseAlert}
-            severity="info"
-            variant="filled"
-            sx={{
-              width: '100%',
-              bgcolor: 'primary.main',
-              '& .MuiAlert-icon': {
-                color: 'white',
-              },
-            }}
-          >
-            Please use WhatsApp to place your order. We'll respond promptly!
-          </Alert>
-        </Snackbar>
       </Container>
     </Box>
   );

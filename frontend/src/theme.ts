@@ -4,54 +4,74 @@ import { orange, grey } from '@mui/material/colors';
 declare module '@mui/material/styles' {
   interface Palette {
     gold: Palette['primary'];
+    whatsapp: Palette['primary'];
   }
   interface PaletteOptions {
     gold?: PaletteOptions['primary'];
+    whatsapp?: PaletteOptions['primary'];
+  }
+  interface TypographyVariants {
+    devanagari: React.CSSProperties;
+  }
+  interface TypographyVariantsOptions {
+    devanagari?: React.CSSProperties;
   }
 }
 
-// Import Google Fonts in index.html or via @fontsource
-// For demo, we'll use 'Pacifico' for headings and 'Montserrat' for body
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    devanagari: true;
+  }
+}
+
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    gold: true;
+    whatsapp: true;
+  }
+}
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#7c3a6a', // deep mauve/plum
+      main: '#7c3a6a',
       light: '#9c5589',
       dark: '#5c1d4c',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#e7b8a3', // rose gold/blush
+      main: '#e7b8a3',
       light: '#ffebd7',
       dark: '#b48873',
       contrastText: '#4e342e',
     },
     background: {
-      default: '#f9f6f2', // soft champagne/ivory
+      default: '#f9f6f2',
       paper: '#fff',
     },
     text: {
-      primary: '#4e342e', // rich brown
+      primary: '#4e342e',
       secondary: '#7c3a6a',
     },
     error: {
       main: orange[400],
     },
     gold: {
-      main: '#c9a063', // gold accent
+      main: '#c9a063',
       light: '#dbb77d',
       dark: '#b68d4c',
+      contrastText: '#fff',
+    },
+    whatsapp: {
+      main: '#25D366',
+      light: '#3de07a',
+      dark: '#1da851',
       contrastText: '#fff',
     },
     grey: grey,
   },
   typography: {
-    fontFamily: [
-      'Lato',
-      'Arial',
-      'sans-serif',
-    ].join(','),
+    fontFamily: ['Lato', 'Arial', 'sans-serif'].join(','),
     h1: {
       fontFamily: 'Playfair Display, serif',
       fontWeight: 700,
@@ -98,6 +118,13 @@ const theme = createTheme({
       color: '#4e342e',
       letterSpacing: '0.02em',
     },
+    devanagari: {
+      fontFamily: '"Noto Serif Devanagari", serif',
+      fontWeight: 700,
+      fontSize: '1.75rem',
+      lineHeight: 1.5,
+      letterSpacing: '0.02em',
+    },
     subtitle1: {
       fontFamily: 'Lato, sans-serif',
       fontSize: '1.125rem',
@@ -141,12 +168,16 @@ const theme = createTheme({
             boxShadow: '0 4px 12px rgba(124,58,106,0.2)',
           },
         },
-        contained: {
-          background: 'linear-gradient(45deg, #7c3a6a 30%, #9c5589 90%)',
+        // Solid primary plum — matches theme palette primary.main (#7c3a6a)
+        containedPrimary: ({ theme: muiTheme }) => ({
+          backgroundColor: muiTheme.palette.primary.main,
+          color: muiTheme.palette.primary.contrastText,
+          backgroundImage: 'none',
           '&:hover': {
-            background: 'linear-gradient(45deg, #6c2a5a 30%, #8c4579 90%)',
+            backgroundColor: muiTheme.palette.primary.dark,
+            backgroundImage: 'none',
           },
-        },
+        }),
         outlined: {
           borderWidth: '2px',
           '&:hover': {
@@ -205,4 +236,4 @@ const theme = createTheme({
   },
 });
 
-export { theme }; 
+export { theme };
